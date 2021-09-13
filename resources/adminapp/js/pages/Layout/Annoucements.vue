@@ -1,0 +1,143 @@
+<template>
+  <div class="container" id="annoucements">
+    <div class="row">
+      <div class="col-md-12">
+        <div class="card">
+          <div class="card-header card-header-primary card-header-icon">
+            <div class="card-icon">
+              <i class="material-icons">announcement</i>
+            </div>
+            <h5 class="card-title">
+              {{ $t('global.table') }}
+              <strong>{{ $t('cruds.annoucement.title') }}</strong>
+            </h5>
+          </div>
+          <div class="card-body">
+            <div class="row">
+              <div class="col-md-12">
+                <div class="table-overlay" v-show="loading">
+                  <div class="table-overlay-container">
+                    <material-spinner></material-spinner>
+                    <span>Loading...</span>
+                  </div>
+                </div>
+                <datatable
+                  :columns="columns"
+                  :data="data"
+                  :total="total"
+                  :query="query"
+                  :xprops="xprops"
+                  :HeaderSettings="false"
+                  :pageSizeOptions="[10, 25, 50, 100]"
+                >
+                  <global-search :query="query" class="pull-left" />
+                  <span style="margin-left:10%">
+                    <button
+                      type="button"
+                      class="btn btn-default"
+                      @click="fetchIndexData"
+                      :disabled="loading"
+                      :class="{ disabled: loading }"
+                      >
+                      <i class="material-icons" :class="{ 'fa-spin': loading }">
+                      refresh
+                      </i>
+                      {{ $t('global.refresh') }}
+                    </button>
+                  </span>
+                  <header-settings :columns="columns" class="pull-right" />
+                </datatable>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</template>
+
+<script>
+import { mapGetters, mapActions } from 'vuex'
+import TranslatedHeader from '@components/Datatables/TranslatedHeader'
+import HeaderSettings from '@components/Datatables/HeaderSettings'
+import GlobalSearch from '@components/Datatables/GlobalSearch'
+import DatatableAttachments from '@components/Datatables/DatatableAttachments'
+
+export default {
+  components: {
+    GlobalSearch,
+    HeaderSettings
+  },
+  data() {
+    return {
+      columns: [
+        {
+          title: 'cruds.annoucement.fields.id',
+          field: 'id',
+          thComp: TranslatedHeader,
+          sortable: true,
+          colStyle: 'width: 100px;'
+        },
+        {
+          title: 'cruds.annoucement.fields.annoucement',
+          field: 'annoucement',
+          thComp: TranslatedHeader,
+          tdComp: DatatableAttachments
+        },
+        {
+          title: 'cruds.annoucement.fields.name',
+          field: 'name',
+          thComp: TranslatedHeader,
+          sortable: true
+        },
+        {
+          title: 'cruds.annoucement.fields.number',
+          field: 'number',
+          thComp: TranslatedHeader,
+          sortable: true
+        },
+        {
+          title: 'cruds.annoucement.fields.short_name',
+          field: 'short_name',
+          thComp: TranslatedHeader,
+          sortable: true
+        },
+        {
+          title: 'cruds.annoucement.fields.allow_date',
+          field: 'allow_date',
+          thComp: TranslatedHeader,
+          sortable: true
+        }
+      ],
+      query: { sort: 'id', order: 'desc', limit: 10, s: '' },
+      xprops: {
+        module: 'AnnoucementsIndex',
+        route: 'annoucements',
+        permission_prefix: 'annoucement_'
+      }
+    }
+  },
+  beforeDestroy() {
+    this.resetState()
+  },
+  computed: {
+    ...mapGetters('AnnoucementsIndex', ['data', 'total', 'loading'])
+  },
+  watch: {
+    query: {
+      handler(query) {
+        this.setQuery(query)
+        this.fetchIndexData()
+      },
+      deep: true
+    }
+  },
+  methods: {
+    ...mapActions('AnnoucementsIndex', [
+      'fetchIndexData',
+      'setQuery',
+      'resetState'
+    ])
+  }
+}
+</script>
